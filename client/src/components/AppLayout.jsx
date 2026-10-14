@@ -8,6 +8,7 @@ import Icon from './Icon';
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
   { to: '/profile', label: 'My Profile', icon: 'user' },
+  { to: '/research-profile', label: 'Skills & Interests', icon: 'flask' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 

@@ -15,5 +15,6 @@ router.get('/health', (req, res) => {
 
 router.use(require('./auth.routes')); // FR-01 registration & login
 router.use(require('./profile.routes')); // FR-01 profile & profile picture
+router.use(require('./research.routes')); // FR-02 skills & interests
 
 module.exports = router;

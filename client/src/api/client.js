@@ -76,6 +76,18 @@ export const ProfileAPI = {
   removeAvatar: () => api.delete('/profile/avatar').then((r) => r.data),
 };
 
+// FR-02 — Skills & interests
+export const ResearchAPI = {
+  get: () => api.get('/profile/research').then((r) => r.data),
+  replace: (data) => api.put('/profile/research', data).then((r) => r.data),
+  addSkill: (data) => api.post('/profile/skills', data).then((r) => r.data),
+  updateSkill: (id, data) => api.patch(`/profile/skills/${id}`, data).then((r) => r.data),
+  removeSkill: (id) => api.delete(`/profile/skills/${id}`).then((r) => r.data),
+  addTag: (field, value) => api.post(`/profile/tags/${field}`, { value }).then((r) => r.data),
+  removeTag: (field, value) => api.delete(`/profile/tags/${field}/${encodeURIComponent(value)}`).then((r) => r.data),
+  suggestions: (field, q, signal) =>
+    api.get('/taxonomy/suggestions', { params: { field, q }, signal }).then((r) => r.data.suggestions),
+};
 
 
 

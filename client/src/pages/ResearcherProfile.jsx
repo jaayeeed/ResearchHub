@@ -55,6 +55,7 @@ export default function ResearcherProfile({ self = false }) {
                 {self && (
                   <>
                     <Link to="/profile/edit" className="btn btn--primary"><Icon name="edit" size={16} /> Edit profile</Link>
+                    <Link to="/research-profile" className="btn btn--secondary"><Icon name="flask" size={16} /> Skills & interests</Link>
                   </>
                 )}
               </div>
@@ -70,7 +71,48 @@ export default function ResearcherProfile({ self = false }) {
             {r.bio ? <p className="prose">{r.bio}</p> : <p className="muted">{self ? 'Add a short bio so others know what you work on.' : 'No bio yet.'}</p>}
           </section>
 
+          <section className="card section fade-up" style={{ animationDelay: '140ms' }}>
+            <h2 className="section__title"><Icon name="layers" size={18} /> Research domains & interests</h2>
+            <h4 className="sub-label">Domains</h4>
+            <div className="tag-row">
+              {r.researchDomains.length ? r.researchDomains.map((t) => (
+                <span key={t} className={`tag tag--domain ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+            <h4 className="sub-label">Interests</h4>
+            <div className="tag-row">
+              {r.interests.length ? r.interests.map((t) => (
+                <span key={t} className={`tag ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+            <h4 className="sub-label">Expertise</h4>
+            <div className="tag-row">
+              {r.expertise.length ? r.expertise.map((t) => (
+                <span key={t} className={`tag tag--outline ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+          </section>
 
+          <section className="card section fade-up" style={{ animationDelay: '200ms' }}>
+            <h2 className="section__title"><Icon name="tool" size={18} /> Skills</h2>
+            {r.skills.length ? (
+              <ul className="skill-bars">
+                {r.skills.map((s, i) => (
+                  <li key={s._id || s.name} className={isShared(s.name) ? 'is-shared' : ''}>
+                    <div className="skill-bars__label">
+                      <span>{s.name}</span>
+                      <small>{capitalize(s.level)}</small>
+                    </div>
+                    <div className="skill-bars__track">
+                      <span style={{ '--w': `${LEVEL_PCT[s.level]}%`, animationDelay: `${300 + i * 60}ms` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">No skills added yet.</p>
+            )}
+          </section>
         </div>
 
         <aside className="profile-grid__side">

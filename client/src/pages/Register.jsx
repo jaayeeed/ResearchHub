@@ -42,7 +42,7 @@ export default function Register() {
       const { confirm, ...payload } = form;
       const user = await register(payload);
       toast.success(`Welcome to ResearchHub, ${user.name.split(' ')[0]}!`);
-      navigate('/profile/edit', { replace: true });
+      navigate('/research-profile', { replace: true, state: { onboarding: true } });
     } catch (err) {
       setErrors(fieldErrors(err));
       setError(errorMessage(err));
