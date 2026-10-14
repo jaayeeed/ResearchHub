@@ -11,6 +11,9 @@ const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const ResearcherProfile = lazy(() => import('./pages/ResearcherProfile'));
 const EditProfile = lazy(() => import('./pages/EditProfile'));
+const ResearchInterests = lazy(() => import('./pages/ResearchInterests'));
+const Discover = lazy(() => import('./pages/Discover'));
+const Recommendations = lazy(() => import('./pages/Recommendations'));
 const Settings = lazy(() => import('./pages/Settings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -41,6 +44,10 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<ResearcherProfile self />} />
           <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/research-profile" element={<ResearchInterests />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/researchers/:id" element={<ResearcherProfile />} />
+          <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
 

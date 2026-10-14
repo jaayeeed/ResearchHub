@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ResearcherAPI, errorMessage } from '../api/client';
+import { RecommendationAPI } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
+import ScoreRing from '../components/ScoreRing';
+import { EmptyState, Skeleton } from '../components/Feedback';
 import { ROLE_LABELS, capitalize, formatDate, scoreLabel } from '../utils/format';
 
 const LINKS = [
@@ -14,6 +18,22 @@ const LINKS = [
 ];
 const LEVEL_PCT = { beginner: 25, intermediate: 50, advanced: 75, expert: 100 };
 
+function ProfileSkeleton() {
+  return (
+    <div className="page">
+      <div className="card profile-hero">
+        <div className="profile-hero__cover" />
+        <div className="profile-hero__body">
+          <Skeleton w={132} h={132} r={999} style={{ marginTop: -66 }} />
+          <div style={{ display: 'grid', gap: 10, marginTop: 16 }}>
+            <Skeleton w={260} h={28} />
+            <Skeleton w={340} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Researcher profile page.
@@ -22,9 +42,39 @@ const LEVEL_PCT = { beginner: 25, intermediate: 50, advanced: 75, expert: 100 };
  */
 export default function ResearcherProfile({ self = false }) {
   const { user: me } = useAuth();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [state, setState] = useState({ loading: !self, data: null, error: '' });
+  const [match, setMatch] = useState(null);
+  const [similar, setSimilar] = useState([]);
 
-  const r = me;
-  const match = null;
+  useEffect(() => {
+    if (self) return;
+    if (id === String(me.id)) {
+      navigate('/profile', { replace: true });
+      return;
+    }
+    setState({ loading: true, data: null, error: '' });
+    ResearcherAPI.get(id)
+      .then((d) => setState({ loading: false, data: d, error: '' }))
+      .catch((err) => setState({ loading: false, data: null, error: errorMessage(err) }));
+    setMatch(null);
+    RecommendationAPI.match(id).then(setMatch).catch(() => setMatch(null));
+    RecommendationAPI.similar(id).then(setSimilar).catch(() => setSimilar([]));
+  }, [id, self, me.id, navigate]);
+
+  if (state.loading) return <ProfileSkeleton />;
+  if (state.error) {
+    return (
+      <div className="page">
+        <EmptyState icon="user" title="Profile unavailable" action={<Link to="/discover" className="btn btn--primary">Back to discovery</Link>}>
+          {state.error}
+        </EmptyState>
+      </div>
+    );
+  }
+
+  const r = self ? me : state.data.researcher;
   const sharedSet = new Set(match ? Object.values(match.shared).flat().map((s) => s.toLowerCase()) : []);
   const isShared = (t) => sharedSet.has(t.toLowerCase());
   const links = LINKS.filter((l) => r.links?.[l.key]);
@@ -55,7 +105,17 @@ export default function ResearcherProfile({ self = false }) {
                 {self && (
                   <>
                     <Link to="/profile/edit" className="btn btn--primary"><Icon name="edit" size={16} /> Edit profile</Link>
+                    <Link to="/research-profile" className="btn btn--secondary"><Icon name="flask" size={16} /> Skills & interests</Link>
                   </>
+                )}
+                {!self && match && (
+                  <div className="match-badge">
+                    <ScoreRing value={match.score} size={64} />
+                    <div>
+                      <strong>{scoreLabel(match.score)}</strong>
+                      <span>with your profile</span>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -70,10 +130,68 @@ export default function ResearcherProfile({ self = false }) {
             {r.bio ? <p className="prose">{r.bio}</p> : <p className="muted">{self ? 'Add a short bio so others know what you work on.' : 'No bio yet.'}</p>}
           </section>
 
+          <section className="card section fade-up" style={{ animationDelay: '140ms' }}>
+            <h2 className="section__title"><Icon name="layers" size={18} /> Research domains & interests</h2>
+            <h4 className="sub-label">Domains</h4>
+            <div className="tag-row">
+              {r.researchDomains.length ? r.researchDomains.map((t) => (
+                <span key={t} className={`tag tag--domain ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+            <h4 className="sub-label">Interests</h4>
+            <div className="tag-row">
+              {r.interests.length ? r.interests.map((t) => (
+                <span key={t} className={`tag ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+            <h4 className="sub-label">Expertise</h4>
+            <div className="tag-row">
+              {r.expertise.length ? r.expertise.map((t) => (
+                <span key={t} className={`tag tag--outline ${isShared(t) ? 'tag--shared' : ''}`}>{t}</span>
+              )) : <span className="muted">Not added yet</span>}
+            </div>
+          </section>
 
+          <section className="card section fade-up" style={{ animationDelay: '200ms' }}>
+            <h2 className="section__title"><Icon name="tool" size={18} /> Skills</h2>
+            {r.skills.length ? (
+              <ul className="skill-bars">
+                {r.skills.map((s, i) => (
+                  <li key={s._id || s.name} className={isShared(s.name) ? 'is-shared' : ''}>
+                    <div className="skill-bars__label">
+                      <span>{s.name}</span>
+                      <small>{capitalize(s.level)}</small>
+                    </div>
+                    <div className="skill-bars__track">
+                      <span style={{ '--w': `${LEVEL_PCT[s.level]}%`, animationDelay: `${300 + i * 60}ms` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">No skills added yet.</p>
+            )}
+          </section>
         </div>
 
         <aside className="profile-grid__side">
+          {match && match.reasons && (
+            <section className="card section fade-up">
+              <h2 className="section__title"><Icon name="sparkles" size={18} /> Why you match</h2>
+              <ul className="match-reasons match-reasons--lg">
+                {match.reasons.map((reason) => <li key={reason}><Icon name="check" size={14} /> {reason}</li>)}
+              </ul>
+              <div className="breakdown">
+                {Object.entries(match.breakdown).map(([k, v]) => (
+                  <div key={k} className="breakdown__row">
+                    <span>{{ researchDomains: 'Domains', skills: 'Skills', interests: 'Interests', expertise: 'Expertise' }[k]}</span>
+                    <div className="breakdown__track"><span style={{ '--w': `${v}%` }} /></div>
+                    <small>{v}%</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="card section fade-up" style={{ animationDelay: '120ms' }}>
             <h2 className="section__title"><Icon name="graduation" size={18} /> Education</h2>
@@ -108,6 +226,24 @@ export default function ResearcherProfile({ self = false }) {
             </section>
           )}
 
+          {!self && similar.length > 0 && (
+            <section className="card section fade-up" style={{ animationDelay: '240ms' }}>
+              <h2 className="section__title"><Icon name="users" size={18} /> Similar researchers</h2>
+              <ul className="mini-list">
+                {similar.map((s) => (
+                  <li key={s.researcher.id}>
+                    <Link to={`/researchers/${s.researcher.id}`}>
+                      <Avatar src={s.researcher.avatarUrl} name={s.researcher.name} size={36} />
+                      <span>
+                        <strong>{s.researcher.name}</strong>
+                        <small>{s.researcher.institution || ROLE_LABELS[s.researcher.role]}</small>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <p className="muted small">Member since {formatDate(r.createdAt)}</p>
         </aside>

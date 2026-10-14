@@ -115,7 +115,51 @@ Register a new account, add some skills/interests, and open **Recommended** — 
 | DELETE 🔒 | `/profile/avatar` | Remove profile picture |
 | GET | `/users/:id/avatar` | Profile picture image (cached with ETag) |
 
+### FR-02 · Skills & interests
+| Method | Route | Description |
+|---|---|---|
+| GET 🔒 | `/profile/research` | My skills, domains, interests, expertise |
+| PUT 🔒 | `/profile/research` | Replace all at once `{ skills:[{name,level}], researchDomains:[], interests:[], expertise:[] }` |
+| POST 🔒 | `/profile/skills` | Add skill `{ name, level }` (level: beginner/intermediate/advanced/expert) |
+| PATCH 🔒 | `/profile/skills/:skillId` | Update skill name/level |
+| DELETE 🔒 | `/profile/skills/:skillId` | Remove skill |
+| POST 🔒 | `/profile/tags/:field` | Add `{ value }` to `researchDomains` \| `interests` \| `expertise` |
+| DELETE 🔒 | `/profile/tags/:field/:value` | Remove a value |
+| GET 🔒 | `/taxonomy/suggestions?field=skills&q=py` | Autocomplete from platform usage + starter vocabulary |
 
+
+### FR-03 · Search & discovery
+| Method | Route | Description |
+|---|---|---|
+| GET 🔒 | `/researchers?q=&domain=&skill=&interest=&institution=&role=&sort=relevance\|newest\|name&page=&limit=` | Search with filters (comma-separated values = match any) and pagination |
+| GET 🔒 | `/researchers/filters` | Facet values with counts (top domains, skills, interests, institutions) |
+| GET 🔒 | `/researchers/:id` | Public profile |
+
+
+### FR-04 · Recommendations
+| Method | Route | Description |
+|---|---|---|
+| GET 🔒 | `/recommendations?page=&limit=&role=&minScore=` | Ranked collaborator suggestions with score, breakdown, shared items and reasons |
+| GET 🔒 | `/researchers/:id/match` | How well one researcher matches you |
+| GET 🔒 | `/researchers/:id/similar` | Researchers similar to this one |
+| GET 🔒 | `/stats/overview` | Dashboard numbers + top 4 matches |
+
+### How the recommendation algorithm works
+Content-based matching over four profile facets:
+
+| Facet | Weight |
+|---|---|
+| Research domains | 40 % |
+| Skills | 30 % |
+| Interests | 20 % |
+| Expertise | 10 % |
+
+For each facet: `similarity = max(exact-term cosine, 0.5 × word-token cosine)` where
+`cosine(A,B) = |A ∩ B| / √(|A|·|B|)`. The token step gives partial credit for related phrases
+(e.g. *Deep Learning* ↔ *Machine Learning*). Facets the user hasn't filled are ignored and the weights re-normalised.
+Small adjustments: +3 for the same institution, ×0.85 if the person is not open to collaboration.
+MongoDB first narrows candidates using indexed, normalised arrays (only people sharing at least one term/token are scored),
+and results are cached per user for 60 s and invalidated whenever research data changes.
 
 
 ---

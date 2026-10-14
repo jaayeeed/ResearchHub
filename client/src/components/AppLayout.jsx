@@ -8,6 +8,9 @@ import Icon from './Icon';
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
   { to: '/profile', label: 'My Profile', icon: 'user' },
+  { to: '/research-profile', label: 'Skills & Interests', icon: 'flask' },
+  { to: '/discover', label: 'Discover', icon: 'search' },
+  { to: '/recommendations', label: 'Recommended', icon: 'sparkles' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
@@ -83,7 +86,18 @@ export default function AppLayout() {
           <button type="button" className="icon-btn topbar__menu" onClick={() => setOpen(true)} aria-label="Open menu">
             <Icon name="menu" />
           </button>
-          <div className="topbar__spacer" />
+          <form
+            className="topbar__search"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = new FormData(e.currentTarget).get('q');
+              navigate(`/discover?q=${encodeURIComponent(q || '')}`);
+            }}
+          >
+            <Icon name="search" size={17} />
+            <input name="q" placeholder="Search researchers, skills, domains…" aria-label="Search researchers" />
+          </form>
           <Link to="/profile" className="topbar__me" aria-label="My profile">
             <Avatar src={user.avatarUrl} name={user.name} size={36} />
           </Link>
