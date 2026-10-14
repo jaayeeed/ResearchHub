@@ -18,6 +18,9 @@ export default function Dashboard() {
     { done: !!user.bio && !!user.headline, label: 'Write a headline and bio', to: '/profile/edit' },
     { done: !!user.institution && !!user.department, label: 'Add your institution & department', to: '/profile/edit' },
     { done: user.education.length > 0, label: 'Add your education', to: '/profile/edit' },
+    { done: user.researchDomains.length > 0, label: 'Choose your research domains', to: '/research-profile' },
+    { done: user.skills.length >= 3, label: 'Add at least 3 skills', to: '/research-profile' },
+    { done: user.interests.length >= 3, label: 'Add at least 3 interests', to: '/research-profile' },
   ];
 
   return (
@@ -35,7 +38,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="welcome__actions">
-          <Link to="/profile" className="btn btn--secondary"><Icon name="user" size={17} /> View profile</Link>
+          <Link to="/discover" className="btn btn--secondary"><Icon name="search" size={17} /> Find researchers</Link>
           <Link to="/profile/edit" className="btn btn--primary"><Icon name="edit" size={17} /> Edit profile</Link>
         </div>
       </section>

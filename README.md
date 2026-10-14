@@ -115,6 +115,25 @@ Register a new account, add some skills/interests, and open **Recommended** — 
 | DELETE 🔒 | `/profile/avatar` | Remove profile picture |
 | GET | `/users/:id/avatar` | Profile picture image (cached with ETag) |
 
+### FR-02 · Skills & interests
+| Method | Route | Description |
+|---|---|---|
+| GET 🔒 | `/profile/research` | My skills, domains, interests, expertise |
+| PUT 🔒 | `/profile/research` | Replace all at once `{ skills:[{name,level}], researchDomains:[], interests:[], expertise:[] }` |
+| POST 🔒 | `/profile/skills` | Add skill `{ name, level }` (level: beginner/intermediate/advanced/expert) |
+| PATCH 🔒 | `/profile/skills/:skillId` | Update skill name/level |
+| DELETE 🔒 | `/profile/skills/:skillId` | Remove skill |
+| POST 🔒 | `/profile/tags/:field` | Add `{ value }` to `researchDomains` \| `interests` \| `expertise` |
+| DELETE 🔒 | `/profile/tags/:field/:value` | Remove a value |
+| GET 🔒 | `/taxonomy/suggestions?field=skills&q=py` | Autocomplete from platform usage + starter vocabulary |
+
+
+### FR-03 · Search & discovery
+| Method | Route | Description |
+|---|---|---|
+| GET 🔒 | `/researchers?q=&domain=&skill=&interest=&institution=&role=&sort=relevance\|newest\|name&page=&limit=` | Search with filters (comma-separated values = match any) and pagination |
+| GET 🔒 | `/researchers/filters` | Facet values with counts (top domains, skills, interests, institutions) |
+| GET 🔒 | `/researchers/:id` | Public profile |
 
 
 
