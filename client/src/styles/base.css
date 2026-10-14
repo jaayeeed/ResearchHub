@@ -1,0 +1,160 @@
+/* =========================================================
+   ResearchHub — design tokens, reset, typography, animation
+   ========================================================= */
+:root {
+  /* palette */
+  --ink: #0f1b2d;
+  --ink-2: #172840;
+  --ink-3: #22385a;
+  --paper: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #faf9f6;
+  --line: #e7e2d8;
+  --line-2: #d9d3c6;
+  --text: #1a2333;
+  --text-2: #3b4658;
+  --muted: #6b7486;
+  --primary: #2f4bd8;
+  --primary-600: #2338b0;
+  --primary-50: #eef1fe;
+  --primary-100: #dde3fd;
+  --accent: #e8a33d;
+  --accent-600: #c9851f;
+  --accent-50: #fdf4e4;
+  --green: #12a37a;
+  --green-50: #e6f6f0;
+  --danger: #d14343;
+  --danger-50: #fdeeee;
+  --sky: #8fa7ff;
+
+  /* type */
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* shape & depth */
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --shadow-sm: 0 1px 2px rgba(15, 27, 45, 0.05);
+  --shadow: 0 1px 2px rgba(15, 27, 45, 0.04), 0 6px 20px -8px rgba(15, 27, 45, 0.12);
+  --shadow-lg: 0 2px 4px rgba(15, 27, 45, 0.04), 0 18px 40px -16px rgba(15, 27, 45, 0.25);
+  --ring: 0 0 0 3px rgba(47, 75, 216, 0.22);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --sidebar-w: 260px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.2;
+}
+h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.6rem, 2.4vw, 2.1rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.15rem; font-weight: 650; }
+h3 { font-size: 1.02rem; font-weight: 650; }
+h4 { font-size: 0.9rem; font-weight: 600; }
+p { margin: 0; }
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { color: var(--primary-600); }
+
+img { display: block; max-width: 100%; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: 6px;
+}
+
+::selection { background: var(--primary-100); }
+
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-600);
+  margin-bottom: 6px;
+}
+.prose { color: var(--text-2); white-space: pre-line; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- animation primitives ---------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to { background-position: 400px 0; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(18, 163, 122, 0.45); }
+  70% { box-shadow: 0 0 0 7px rgba(18, 163, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 163, 122, 0); }
+}
+@keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.fade-up { animation: fadeUp 0.55s var(--ease) both; }
+.pop-in { animation: popIn 0.3s var(--ease) both; }
+.shake { animation: shake 0.45s both; }
+.spin { animation: spin 0.9s linear infinite; }
+.stagger-item {
+  animation: fadeUp 0.55s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* Respect users who prefer less motion (Usability / accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
